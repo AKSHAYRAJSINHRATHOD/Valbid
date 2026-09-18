@@ -52,7 +52,7 @@ export default function AccountPage() {
       return
     }
     const payment = Array.isArray(data) ? data[0] : data
-    setMessage(`Payment intent ${payment.payment_id} created for ₹${Number(payment.amount).toLocaleString('en-IN')}. PayPal checkout is the next connection step.`)
+    setMessage(`Payment intent ${payment.payment_id} created for ₹${Number(payment.amount).toLocaleString('en-IN')}. PayPal checkout will open after merchant credentials are connected.`)
   }
 
   async function signOut() {
@@ -85,7 +85,7 @@ export default function AccountPage() {
                 <div className={`statusPill status-${c.status}`}>
                   {c.status === 'approved' ? <Check size={13}/> : c.status === 'rejected' ? <X size={13}/> : null}
                   {c.status}
-                  {c.status === 'pending' && <button className="payBtn" onClick={() => startPayment(c.id)} disabled={busy === c.id}>{busy === c.id ? 'Preparing…' : 'Prepare payment'}</button>}
+                  {c.status === 'approved' && <button className="payBtn" onClick={() => startPayment(c.id)} disabled={busy === c.id}>{busy === c.id ? 'Preparing…' : 'Prepare payment'}</button>}
                 </div>
               </div>
             ))}
