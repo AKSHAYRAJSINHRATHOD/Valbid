@@ -1,0 +1,5 @@
+import Link from 'next/link'
+
+export default function RulesPage() {
+  return <main className="authPage"><div className="authShell"><Link href="/" className="backLink">← Back to VALBID</Link><div className="authBrand">VAL<span>BID</span></div><div className="authCard"><div className="eyebrow small">RULES</div><h1>Board rules.</h1><p>VALBID is an independent community platform. Paid Position is determined by verified payments made to VALBID, not by Riot competitive rank, MMR or leaderboard data.</p><h3>Eligibility</h3><p>Use only a VALORANT identity you are authorized to represent. Do not submit credentials, passwords, OTPs or access tokens.</p><h3>Ranking</h3><p>Higher verified spend on the same board produces a higher VALBID position. When an existing player raises a target, the checkout charges only the difference above the current verified spend.</p><h3>Payments</h3><p>A position becomes active only after the payment provider confirms the payment and VALBID verifies the transaction.</p><h3>Prohibited use</h3><p>No account selling, sharing, renting, boosting, credential collection, fraud or attempts to manipulate payment verification.</p></div></div></main>
+}
