@@ -52,7 +52,10 @@ export default function AccountPage() {
       return
     }
     const payment = Array.isArray(data) ? data[0] : data
-    setMessage(`Payment intent ${payment.payment_id} created for ₹${Number(payment.amount).toLocaleString('en-IN')}. PayPal checkout will open after merchant credentials are connected.`)
+    const response = await fetch('/api/paypal/create-order', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ paymentId: payment.payment_id }) })
+    const order = await response.json()
+    if (!response.ok) { setMessage(order.error || 'PayPal checkout is not configured yet.'); return }
+    setMessage(`PayPal order ${order.orderId} created. Checkout UI will be enabled after PayPal credentials are connected.`)
   }
 
   async function signOut() {
