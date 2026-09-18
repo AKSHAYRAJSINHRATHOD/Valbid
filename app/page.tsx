@@ -122,11 +122,55 @@ export default function Home() {
       setNotice('Enter a Riot ID and a bid of at least ₹100.')
       return
     }
-    if (!userEmail) {
+    if (!userEmail || !supabase) {
       setNotice('Please sign in before claiming a spot.')
       return
     }
-    setNotice('Your claim is saved as a pending flow. Payment verification will be enabled in the next phase.')
+
+    const [gameName, tagLine] = riotId.trim().split('#')
+    if (!gameName || !tagLine) {
+      setNotice('Use your Riot ID in name#tag format.')
+      return
+    }
+
+    const { data: board, error: boardError } = await supabase
+      .from('boards')
+      .select('id, min_bid')
+      .eq('slug', 'valorant')
+      .eq('active', true)
+      .single()
+
+    if (boardError || !board) {
+      setNotice('VALBID board could not be loaded.')
+      return
+    }
+
+    if (value < Number(board.min_bid)) {
+      setNotice(`Minimum bid is ₹${Number(board.min_bid).toLocaleString('en-IN')}.`)
+      return
+    }
+
+    const { data: auth } = await supabase.auth.getUser()
+    if (!auth.user) {
+      setNotice('Your session expired. Please sign in again.')
+      return
+    }
+
+    const { error } = await supabase.from('claim_requests').insert({
+      user_id: auth.user.id,
+      board_id: board.id,
+      riot_game_name: gameName.trim(),
+      riot_tag_line: tagLine.trim(),
+      region: region === 'Overall' ? 'Overall' : region,
+      target_amount: value,
+    })
+
+    if (error) {
+      setNotice('Could not save your claim request. Please try again.')
+      return
+    }
+
+    setNotice('Claim request created. Your position becomes active only after payment is verified.')
   }
 
   return (
