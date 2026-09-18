@@ -6,21 +6,10 @@ import { supabase } from '../lib/supabase'
 
 type Entry = { id: string; playerId: string; tag: string; region: string; amount: number; verified: boolean; firstVerifiedAt?: string | null }
 
-const fallback: Entry[] = [
-  { id: 'tenz', playerId: 'demo-1', tag: 'NA1', region: 'NA', amount: 48200, verified: true },
-  { id: 'something', playerId: 'demo-2', tag: 'KR1', region: 'Korea', amount: 39100, verified: true },
-  { id: 'aspas', playerId: 'demo-3', tag: '001', region: 'Brazil', amount: 32500, verified: true },
-  { id: 'demon1', playerId: 'demo-4', tag: 'NA1', region: 'NA', amount: 27400, verified: true },
-  { id: 'boaster', playerId: 'demo-5', tag: 'EUW', region: 'EU', amount: 22100, verified: true },
-  { id: 'chronicle', playerId: 'demo-6', tag: 'EU1', region: 'EU', amount: 18500, verified: true },
-  { id: 'something2', playerId: 'demo-7', tag: 'JP1', region: 'Japan', amount: 14900, verified: true },
-  { id: 'royal', playerId: 'demo-8', tag: 'IN1', region: 'India', amount: 12700, verified: true },
-]
-
 const regions = ['Overall', 'India', 'NA', 'EU', 'Pacific', 'Brazil', 'LATAM', 'Korea', 'Japan']
 
 export default function Home() {
-  const [entries, setEntries] = useState<Entry[]>(fallback)
+  const [entries, setEntries] = useState<Entry[]>([])
   const [amount, setAmount] = useState('100')
   const [riotId, setRiotId] = useState('')
   const [region, setRegion] = useState('Overall')
@@ -33,16 +22,42 @@ export default function Home() {
   useEffect(() => {
     let active = true
     async function load() {
-      if (!supabase) { setLoading(false); return }
+      if (!supabase) {
+        setLoading(false)
+        setNotice('Supabase is not configured in this deployment.')
+        return
+      }
+
+      const { data: board, error: boardError } = await supabase
+        .from('boards')
+        .select('id')
+        .eq('slug', 'valorant')
+        .eq('active', true)
+        .single()
+
+      if (boardError || !board) {
+        if (active) {
+          setLoading(false)
+          setNotice('VALBID board could not be loaded.')
+        }
+        return
+      }
+
       const { data, error } = await supabase
         .from('board_entries')
         .select('player_id, paid_amount, first_verified_at, players(riot_game_name, riot_tag_line, region, verified)')
+        .eq('board_id', board.id)
         .eq('active', true)
         .order('paid_amount', { ascending: false })
+        .order('first_verified_at', { ascending: true })
         .limit(100)
+
       if (!active) return
-      if (!error && data?.length) {
-        setEntries(data.flatMap((row: any) => row.players ? [{
+
+      if (error) {
+        setNotice('Live leaderboard is temporarily unavailable.')
+      } else {
+        setEntries((data ?? []).flatMap((row: any) => row.players ? [{
           id: row.players.riot_game_name,
           playerId: row.player_id,
           tag: row.players.riot_tag_line,
@@ -52,8 +67,10 @@ export default function Home() {
           firstVerifiedAt: row.first_verified_at,
         }] : []))
       }
+
       setLoading(false)
     }
+
     load()
     return () => { active = false }
   }, [])
