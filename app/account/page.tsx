@@ -95,7 +95,7 @@ export default function AccountPage() {
               <div className="claimRow" key={c.id}>
                 <div>
                   <strong>{c.riot_game_name}<small>#{c.riot_tag_line}</small></strong>
-                  <span>{c.region} · ₹{Number(c.target_amount).toLocaleString('en-IN')} target</span>
+                  <span>{c.region} · ${Number(c.target_amount).toLocaleString('en-US')} target</span>
                 </div>
                 <div className={`statusPill status-${c.status}`}>
                   {c.status === 'approved' ? <Check size={13}/> : c.status === 'rejected' ? <X size={13}/> : null}
