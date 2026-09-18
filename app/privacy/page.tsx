@@ -1,0 +1,5 @@
+import Link from 'next/link'
+
+export default function PrivacyPage() {
+  return <main className="authPage"><div className="authShell"><Link href="/" className="backLink">← Back to VALBID</Link><div className="authBrand">VAL<span>BID</span></div><div className="authCard"><div className="eyebrow small">PRIVACY</div><h1>Privacy.</h1><p>VALBID stores information needed to operate accounts, claims, board positions and payment records.</p><h3>Information we use</h3><p>This can include your email, submitted Riot ID and region, claim details, verified payment identifiers and platform activity required to provide the service.</p><h3>Payment data</h3><p>VALBID does not ask for or store your PayPal password, payment-card number or PayPal authentication credentials. Payment confirmation is received from the payment provider.</p><h3>Security</h3><p>Access controls and server-side verification are used to protect account and payment workflows. Never send VALBID your Riot or payment credentials.</p></div></div></main>
+}
