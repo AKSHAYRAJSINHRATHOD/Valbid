@@ -228,7 +228,7 @@ export default function Home() {
 
       <section className="infoSection"><div><CircleHelp size={18}/><h3>How it works</h3><p>Choose a board, enter your Riot ID and target position budget, then complete a verified payment. Existing players only pay the difference needed to reach their new target amount.</p></div><div><ChevronDown size={18}/><h3>Important</h3><p>VALBID is an independent community platform. Paid Position is a site ranking based on verified payments, not Riot Games competitive rank, MMR or leaderboard data.</p></div></section>
 
-      <footer id="about"><div className="footerLogo">VALBID</div><p>Independent community platform for VALORANT players.</p><div className="footerLinks"><a href="#about">Rules</a><a href="#about">Terms</a><a href="#about">Privacy</a><a href="#about">FAQ</a></div><small>VALBID is not affiliated with, endorsed by, or sponsored by Riot Games. Paid Position is not an official competitive rank.</small></footer>
+      <footer id="about"><div className="footerLogo">VALBID</div><p>Independent community platform for VALORANT players.</p><div className="footerLinks"><Link href="/rules">Rules</Link><Link href="/terms">Terms</Link><Link href="/privacy">Privacy</Link><Link href="/faq">FAQ</Link></div><small>VALBID is not affiliated with, endorsed by, or sponsored by Riot Games. Paid Position is not an official competitive rank.</small></footer>
     </main>
   )
 }
