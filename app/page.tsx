@@ -20,15 +20,17 @@ export default function Home() {
   const [notice, setNotice] = useState('')
 
   useEffect(() => {
-    let active = true
-    async function load() {
-      if (!supabase) {
-        setLoading(false)
-        setNotice('Supabase is not configured in this deployment.')
-        return
-      }
+    if (!supabase) {
+      setLoading(false)
+      setNotice('Supabase is not configured in this deployment.')
+      return
+    }
 
-      const { data: board, error: boardError } = await supabase
+    let active = true
+    let boardId = ''
+
+    async function load() {
+      const { data: board, error: boardError } = await supabase!
         .from('boards')
         .select('id')
         .eq('slug', 'valorant')
@@ -43,7 +45,9 @@ export default function Home() {
         return
       }
 
-      const { data, error } = await supabase
+      boardId = board.id
+
+      const { data, error } = await supabase!
         .from('board_entries')
         .select('player_id, paid_amount, first_verified_at, players(riot_game_name, riot_tag_line, region, verified)')
         .eq('board_id', board.id)
@@ -66,13 +70,31 @@ export default function Home() {
           verified: Boolean(row.players.verified),
           firstVerifiedAt: row.first_verified_at,
         }] : []))
+        setNotice('')
       }
 
       setLoading(false)
     }
 
     load()
-    return () => { active = false }
+
+    const channel = supabase
+      .channel('valbid-board-live')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'board_entries' },
+        (payload) => {
+          const changed = payload.new as { board_id?: string; active?: boolean }
+          const old = payload.old as { board_id?: string }
+          if (changed?.board_id === boardId || old?.board_id === boardId) load()
+        }
+      )
+      .subscribe()
+
+    return () => {
+      active = false
+      supabase!.removeChannel(channel)
+    }
   }, [])
 
   const filtered = useMemo(() => {
