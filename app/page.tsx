@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { ArrowUpRight, ChevronDown, CircleHelp, Flame, Menu, Search, ShieldCheck, Trophy, X } from 'lucide-react'
+import { ArrowUpRight, ChevronDown, CircleHelp, Flame, Menu, Search, ShieldCheck, Trophy, X, LogIn, LogOut, UserRound } from 'lucide-react'
+import Link from 'next/link'
 import { supabase } from '../lib/supabase'
 
 type Entry = { id: string; playerId: string; tag: string; region: string; amount: number; verified: boolean; firstVerifiedAt?: string | null }
@@ -18,6 +19,7 @@ export default function Home() {
   const [menu, setMenu] = useState(false)
   const [loading, setLoading] = useState(true)
   const [notice, setNotice] = useState('')
+  const [userEmail, setUserEmail] = useState<string | null>(null)
 
   useEffect(() => {
     if (!supabase) {
@@ -78,6 +80,13 @@ export default function Home() {
 
     load()
 
+    supabase.auth.getUser().then(({ data }) => {
+      if (active) setUserEmail(data.user?.email ?? null)
+    })
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (active) setUserEmail(session?.user?.email ?? null)
+    })
+
     const channel = supabase
       .channel('valbid-board-live')
       .on(
@@ -93,6 +102,7 @@ export default function Home() {
 
     return () => {
       active = false
+      authListener.subscription.unsubscribe()
       supabase!.removeChannel(channel)
     }
   }, [])
@@ -106,13 +116,17 @@ export default function Home() {
       .map((e, i) => ({ ...e, rank: i + 1 }))
   }, [entries, region, search])
 
-  function claim() {
+  async function claim() {
     const value = Number(amount)
     if (!riotId.trim() || !Number.isFinite(value) || value < 100) {
       setNotice('Enter a Riot ID and a bid of at least ₹100.')
       return
     }
-    setNotice('Claim flow is ready in the UI. Payment verification will be enabled after the payment provider + Riot verification are connected.')
+    if (!userEmail) {
+      setNotice('Please sign in before claiming a spot.')
+      return
+    }
+    setNotice('Your claim is saved as a pending flow. Payment verification will be enabled in the next phase.')
   }
 
   return (
@@ -120,7 +134,7 @@ export default function Home() {
       <header className="topbar">
         <a className="logo" href="#top">VAL<span>BID</span></a>
         <nav className="desktopNav"><a href="#leaderboard">Leaderboard</a><a href="#activity">Activity</a><a href="#about">About</a></nav>
-        <div className="topActions">
+        <div className="topActions"><div className="authArea">{userEmail ? <button className="authBtn" onClick={async () => { await supabase?.auth.signOut(); setNotice("Signed out.") }}><UserRound size={14}/>{userEmail.split("@")[0]}<LogOut size={14}/></button> : <Link className="authBtn" href="/login"><LogIn size={14}/>Sign in</Link>}</div>
           <div className="searchBox"><Search size={16}/><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search player" /></div>
           <button className="ghostBtn" onClick={() => setMenu(!menu)} aria-label="Menu">{menu ? <X size={18}/> : <Menu size={18}/>}</button>
         </div>
