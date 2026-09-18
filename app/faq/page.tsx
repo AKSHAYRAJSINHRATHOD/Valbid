@@ -1,0 +1,5 @@
+import Link from 'next/link'
+
+export default function FAQPage() {
+  return <main className="authPage"><div className="authShell"><Link href="/" className="backLink">← Back to VALBID</Link><div className="authBrand">VAL<span>BID</span></div><div className="authCard"><div className="eyebrow small">FAQ</div><h1>Questions.</h1><h3>Is this Riot's leaderboard?</h3><p>No. VALBID is independent. Its Paid Position is based on verified VALBID payments.</p><h3>Do I give VALBID my Riot password?</h3><p>No. The MVP only asks for a public Riot ID and tag. Never submit a password, OTP or account access token.</p><h3>How does an outbid work?</h3><p>The target amount is compared with the player's current verified spend. For an existing position, only the difference needed to reach the new target is charged.</p><h3>When does my position appear?</h3><p>After the payment provider confirms the payment and the server successfully verifies and records it.</p></div></div></main>
+}
