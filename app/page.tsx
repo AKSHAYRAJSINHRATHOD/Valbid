@@ -215,7 +215,7 @@ export default function Home() {
           {loading && <div className="empty">Loading live board…</div>}
           {!loading && filtered.map((e, i) => <div className={`entry ${i < 3 ? 'topEntry' : ''}`} key={`${e.id}-${e.tag}`}>
             <div className="rank">{e.rank <= 3 ? <Trophy size={17}/> : String(e.rank).padStart(2, '0')}</div>
-            <div className="player"><div className="avatar">{e.id[0].toUpperCase()}</div><div><strong>{e.id}<small>#{e.tag}</small></strong>{e.verified && <span className="verified"><ShieldCheck size={12}/> Verified</span>}</div></div>
+            <Link className="player playerLink" href={`/player/${e.playerId}`}><div className="avatar">{e.id[0].toUpperCase()}</div><div><strong>{e.id}<small>#{e.tag}</small></strong>{e.verified && <span className="verified"><ShieldCheck size={12}/> Verified</span>}</div></Link>
             <div className="regionCell">{e.region}</div>
             <div className="amountCell">₹{e.amount.toLocaleString('en-IN')}</div>
             <div className="move">—</div>
