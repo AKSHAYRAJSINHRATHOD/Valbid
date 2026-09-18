@@ -42,7 +42,7 @@ export default function AccountPage() {
     load()
     const orderId = new URLSearchParams(window.location.search).get('token')
     if (orderId) {
-      fetch('/api/paypal/capture?orderId=' + encodeURIComponent(orderId))
+      fetch('/api/paypal/return?token=' + encodeURIComponent(orderId))
         .then(r => r.json())
         .then(result => {
           if (result.ok) { setMessage('Payment verified. Your VALBID position is now active.'); load() }
@@ -63,7 +63,7 @@ export default function AccountPage() {
       return
     }
     const payment = Array.isArray(data) ? data[0] : data
-    const response = await fetch('/api/paypal/create-order', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ paymentId: payment.payment_id }) })
+    const session = await supabase.auth.getSession()\n    const accessToken = session.data.session?.access_token\n    if (!accessToken) { setBusy(''); setMessage('Your session expired. Please sign in again.'); return }\n    const response = await fetch('/api/paypal/create-order', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + accessToken }, body: JSON.stringify({ paymentId: payment.payment_id }) })
     const order = await response.json()
     if (!response.ok) { setMessage(order.error || 'PayPal checkout is not configured yet.'); return }
     if (order.approvalUrl) { window.location.href = order.approvalUrl; return }
@@ -100,7 +100,7 @@ export default function AccountPage() {
                 <div className={`statusPill status-${c.status}`}>
                   {c.status === 'approved' ? <Check size={13}/> : c.status === 'rejected' ? <X size={13}/> : null}
                   {c.status}
-                  {c.status === 'approved' && <button className="payBtn" onClick={() => startPayment(c.id)} disabled={busy === c.id}>{busy === c.id ? 'Preparing…' : 'Prepare payment'}</button>}
+                  {c.status === 'approved' && <button className="payBtn" onClick={() => startPayment(c.id)} disabled={busy === c.id}>{busy === c.id ? 'Preparing…' : 'Pay with PayPal'}</button>}
                 </div>
               </div>
             ))}
