@@ -119,7 +119,7 @@ export default function Home() {
   async function claim() {
     const value = Number(amount)
     if (!riotId.trim() || !Number.isFinite(value) || value < 100) {
-      setNotice('Enter a Riot ID and a bid of at least ₹100.')
+      setNotice('Enter a Riot ID and a bid of at least $100.')
       return
     }
     if (!userEmail || !supabase) {
@@ -146,7 +146,7 @@ export default function Home() {
     }
 
     if (value < Number(board.min_bid)) {
-      setNotice(`Minimum bid is ₹${Number(board.min_bid).toLocaleString('en-IN')}.`)
+      setNotice(`Minimum bid is $${Number(board.min_bid).toLocaleString('en-US')}.`)
       return
     }
 
@@ -194,11 +194,11 @@ export default function Home() {
         <div className="claimCard">
           <div className="claimRow">
             <label><span>RIOT ID</span><input value={riotId} onChange={e => setRiotId(e.target.value)} placeholder="name#tag" /></label>
-            <label><span>POSITION BUDGET</span><div className="money"><b>₹</b><input value={amount} onChange={e => setAmount(e.target.value.replace(/[^0-9]/g, ''))}/></div></label>
+            <label><span>POSITION BUDGET</span><div className="money"><b>$</b><input value={amount} onChange={e => setAmount(e.target.value.replace(/[^0-9]/g, ''))}/></div></label>
             <label><span>BOARD</span><select value={region} onChange={e => setRegion(e.target.value)}>{regions.map(r => <option key={r}>{r}</option>)}</select></label>
             <button className="claimBtn" onClick={claim}>Claim spot <ArrowUpRight size={18}/></button>
           </div>
-          <div className="claimFoot"><span>Minimum bid ₹100</span><span>•</span><span>Verified payments only</span><span>•</span><span>Not an official Riot rank</span></div>
+          <div className="claimFoot"><span>Minimum bid $100</span><span>•</span><span>Verified payments only</span><span>•</span><span>Not an official Riot rank</span></div>
         </div>
         {notice && <div className="notice">{notice}</div>}
       </section>
@@ -217,7 +217,7 @@ export default function Home() {
             <div className="rank">{e.rank <= 3 ? <Trophy size={17}/> : String(e.rank).padStart(2, '0')}</div>
             <Link className="player playerLink" href={`/player/${e.playerId}`}><div className="avatar">{e.id[0].toUpperCase()}</div><div><strong>{e.id}<small>#{e.tag}</small></strong>{e.verified && <span className="verified"><ShieldCheck size={12}/> Verified</span>}</div></Link>
             <div className="regionCell">{e.region}</div>
-            <div className="amountCell">₹{e.amount.toLocaleString('en-IN')}</div>
+            <div className="amountCell">${e.amount.toLocaleString('en-US')}</div>
             <div className="move">—</div>
           </div>)}
           {!loading && !filtered.length && <div className="empty">No players found on this board.</div>}
