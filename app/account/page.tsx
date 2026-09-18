@@ -20,6 +20,7 @@ export default function AccountPage() {
   const [claims, setClaims] = useState<Claim[]>([])
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState('')
+  const [paymentLinks, setPaymentLinks] = useState<Record<string,string>>({})
 
   async function load() {
     if (!supabase) return
@@ -51,7 +52,7 @@ export default function AccountPage() {
       return
     }
     const payment = Array.isArray(data) ? data[0] : data
-    setMessage(`Payment intent ${payment.payment_id} created for ₹${Number(payment.amount).toLocaleString('en-IN')}. PayPal checkout will be connected next.`)
+    setMessage(`Payment intent ${payment.payment_id} created for ₹${Number(payment.amount).toLocaleString('en-IN')}. PayPal checkout is the next connection step.`)
   }
 
   async function signOut() {
