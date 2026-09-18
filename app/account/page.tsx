@@ -20,7 +20,6 @@ export default function AccountPage() {
   const [claims, setClaims] = useState<Claim[]>([])
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState('')
-  const [paymentLinks, setPaymentLinks] = useState<Record<string,string>>({})
 
   async function load() {
     if (!supabase) return
@@ -39,7 +38,19 @@ export default function AccountPage() {
     else setClaims((data ?? []) as Claim[])
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    load()
+    const orderId = new URLSearchParams(window.location.search).get('token')
+    if (orderId) {
+      fetch('/api/paypal/capture?orderId=' + encodeURIComponent(orderId))
+        .then(r => r.json())
+        .then(result => {
+          if (result.ok) { setMessage('Payment verified. Your VALBID position is now active.'); load() }
+          else if (result.error) setMessage(result.error)
+        })
+        .catch(() => setMessage('Payment verification is still processing.'))
+    }
+  }, [])
 
   async function startPayment(claimId: string) {
     if (!supabase) return
@@ -55,7 +66,8 @@ export default function AccountPage() {
     const response = await fetch('/api/paypal/create-order', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ paymentId: payment.payment_id }) })
     const order = await response.json()
     if (!response.ok) { setMessage(order.error || 'PayPal checkout is not configured yet.'); return }
-    setMessage(`PayPal order ${order.orderId} created. Checkout UI will be enabled after PayPal credentials are connected.`)
+    if (order.approvalUrl) { window.location.href = order.approvalUrl; return }
+    setMessage('PayPal order created, but no approval URL was returned.')
   }
 
   async function signOut() {
